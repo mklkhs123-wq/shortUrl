@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Free URL Shortener - Shorten Links Instantly | TechPatraa</title>
+<meta name="description" content="Free URL Shortener tool by TechPatraa. Shorten long URLs instantly, no signup required. Create short links for Instagram, WhatsApp, YouTube and more.">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: linear-gradient(135deg, #141e30 0%, #243b55 100%);
+    --card: rgba(255,255,255,0.07);
+    --card-border: rgba(255,255,255,0.12);
+    --green: #1D9E75;
+    --green-dark: #0F6E56;
+    --green-light: #25c98f;
+    --text: #e8edf5;
+    --muted: #8fa3b8;
+    --input-bg: rgba(255,255,255,0.06);
+    --input-border: rgba(255,255,255,0.15);
+    --red: #ef4444;
+    --yellow: #f0c04a;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    color: var(--text);
+    padding-bottom: 60px;
+  }
+
+  /* ── HEADER ── */
+  .tp-header {
+    background: rgba(13,22,37,0.9);
+    border-bottom: 1px solid rgba(29,158,117,0.3);
+    padding: 14px 20px;
+    text-align: center;
+    backdrop-filter: blur(12px);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .tp-header .logo { font-size: 1.25rem; font-weight: 800; color: var(--green-light); letter-spacing: -0.5px; }
+  .tp-header .tagline { font-size: 0.7rem; color: var(--muted); margin-top: 2px; }
+
+  /* ── AD ── */
+  .ad-wrap { display: flex; flex-direction: column; align-items: center; padding: 10px 16px; background: rgba(0,0,0,0.2); }
+  .ad-label { font-size: 0.6rem; color: var(--muted); margin-bottom: 4px; letter-spacing: 0.05em; text-transform: uppercase; }
+
+  /* ── HERO ── */
+  .hero { text-align: center; padding: 44px 20px 24px; }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(29,158,117,0.15); border: 1px solid rgba(29,158,117,0.3);
+    border-radius: 20px; padding: 5px 14px; font-size: 0.72rem; font-weight: 600;
+    color: var(--green-light); margin-bottom: 18px; letter-spacing: 0.04em;
+  }
+  .hero h1 { font-size: 2.2rem; font-weight: 800; line-height: 1.15; letter-spacing: -0.5px; }
+  .hero h1 span { background: linear-gradient(90deg, var(--green-light), #60efb5); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .hero p { color: var(--muted); font-size: 0.92rem; margin-top: 12px; max-width: 500px; margin-inline: auto; line-height: 1.6; }
+
+
+
+  /* ── CONTAINER ── */
+  .container { max-width: 820px; margin: 0 auto; padding: 0 16px; }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 18px;
+    padding: 28px;
+    margin-bottom: 20px;
+    backdrop-filter: blur(8px);
+  }
+  .card-title {
+    font-size: 0.75rem; font-weight: 700; letter-spacing: 0.09em;
+    text-transform: uppercase; color: var(--green-light);
+    margin-bottom: 20px; display: flex; align-items: center; gap: 8px;
+  }
+  .card-title::before { content:''; width: 3px; height: 14px; background: var(--green); border-radius: 2px; }
+
+  /* ── INPUT AREA ── */
+  .url-input-wrap { position: relative; }
+  .url-input-wrap input {
+    width: 100%;
+    background: rgba(255,255,255,0.05);
+    border: 2px solid var(--input-border);
+    border-radius: 14px;
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    padding: 18px 20px 18px 52px;
+    outline: none;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .url-input-wrap input:focus { border-color: var(--green); background: rgba(29,158,117,0.07); }
+  .url-input-wrap input::placeholder { color: rgba(143,163,184,0.6); }
+  .url-icon {
+    position: absolute; left: 18px; top: 50%; transform: translateY(-50%);
+    font-size: 1.2rem; pointer-events: none;
+  }
+  .url-clear {
+    position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
+    background: none; border: none; color: var(--muted); cursor: pointer;
+    font-size: 1.1rem; display: none; padding: 4px;
+    transition: color 0.15s;
+  }
+  .url-clear:hover { color: var(--text); }
+
+  /* ── ALIAS OPTION ── */
+  .alias-row { display: flex; gap: 10px; margin-top: 12px; align-items: center; flex-wrap: wrap; }
+  .alias-label { font-size: 0.78rem; color: var(--muted); white-space: nowrap; }
+  .alias-prefix {
+    background: rgba(29,158,117,0.15); border: 1px solid rgba(29,158,117,0.3);
+    border-radius: 8px 0 0 8px; padding: 10px 12px; font-size: 0.8rem; color: var(--green-light);
+    white-space: nowrap;
+  }
+  .alias-input {
+    flex: 1; min-width: 120px;
+    background: var(--input-bg); border: 1px solid var(--input-border);
+    border-left: none; border-radius: 0 8px 8px 0;
+    color: var(--text); font-family: 'Inter', sans-serif;
+    font-size: 0.82rem; padding: 10px 12px; outline: none;
+    transition: border-color 0.2s;
+  }
+  .alias-input:focus { border-color: var(--green); }
+
+  /* ── BTN ── */
+  .btn-shorten {
+    width: 100%; margin-top: 16px;
+    padding: 16px; border-radius: 14px;
+    background: linear-gradient(135deg, var(--green-dark), var(--green));
+    border: none; color: #fff; font-size: 1rem; font-weight: 700;
+    cursor: pointer; letter-spacing: 0.02em;
+    transition: opacity 0.2s, transform 0.15s;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    box-shadow: 0 4px 24px rgba(29,158,117,0.3);
+  }
+  .btn-shorten:hover:not(:disabled) { opacity: 0.9; transform: translateY(-2px); box-shadow: 0 8px 32px rgba(29,158,117,0.4); }
+  .btn-shorten:active { transform: translateY(0); }
+  .btn-shorten:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* ── LOADER ── */
+  .loader-bar {
+    height: 3px; border-radius: 3px; background: var(--input-border);
+    margin-top: 14px; overflow: hidden; display: none;
+  }
+  .loader-bar.active { display: block; }
+  .loader-bar-inner {
+    height: 100%; width: 30%; border-radius: 3px;
+    background: linear-gradient(90deg, var(--green-dark), var(--green-light));
+    animation: slide 1.2s ease-in-out infinite;
+  }
+  @keyframes slide { 0% { transform: translateX(-100%); } 100% { transform: translateX(400%); } }
+
+  /* ── RESULT ── */
+  #resultBox { display: none; margin-top: 20px; }
+  .result-inner {
+    background: rgba(29,158,117,0.1);
+    border: 1px solid rgba(29,158,117,0.35);
+    border-radius: 14px; padding: 20px;
+  }
+  .result-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--green-light); margin-bottom: 10px; }
+  .result-url-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .result-url {
+    flex: 1; min-width: 0;
+    font-size: 1rem; font-weight: 700; color: var(--green-light);
+    word-break: break-all; background: rgba(0,0,0,0.2);
+    border-radius: 10px; padding: 12px 16px;
+    border: 1px solid rgba(29,158,117,0.25);
+  }
+  .result-url a { color: var(--green-light); text-decoration: none; }
+  .result-url a:hover { text-decoration: underline; }
+
+  .result-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+  .btn-sm {
+    padding: 9px 16px; border-radius: 9px; font-size: 0.78rem; font-weight: 600;
+    border: 1px solid var(--input-border); background: var(--input-bg);
+    color: var(--text); cursor: pointer; transition: all 0.15s;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .btn-sm:hover { background: rgba(29,158,117,0.2); border-color: var(--green); color: var(--green-light); }
+  .btn-sm.success { background: rgba(29,158,117,0.3); border-color: var(--green); color: #fff; }
+
+  .original-url-preview {
+    margin-top: 10px; font-size: 0.72rem; color: var(--muted);
+    word-break: break-all;
+  }
+  .original-url-preview span { color: rgba(143,163,184,0.7); }
+
+  /* ── QR CODE ── */
+  #qrWrap { display: none; margin-top: 14px; text-align: center; }
+  #qrWrap img { border-radius: 12px; border: 2px solid rgba(29,158,117,0.3); }
+  #qrWrap .qr-label { font-size: 0.72rem; color: var(--muted); margin-top: 6px; }
+
+  /* ── HISTORY ── */
+  .history-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 16px; background: var(--input-bg);
+    border: 1px solid var(--input-border); border-radius: 10px; margin-bottom: 10px;
+    gap: 10px; flex-wrap: wrap;
+    transition: border-color 0.15s;
+  }
+  .history-item:hover { border-color: rgba(29,158,117,0.4); }
+  .history-left { flex: 1; min-width: 0; }
+  .history-short { font-size: 0.85rem; font-weight: 700; color: var(--green-light); }
+  .history-short a { color: inherit; text-decoration: none; }
+  .history-original { font-size: 0.72rem; color: var(--muted); margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 280px; }
+  .history-time { font-size: 0.68rem; color: var(--muted); white-space: nowrap; }
+  .history-copy { font-size: 0.72rem; padding: 5px 12px; }
+
+  .empty-history { text-align: center; padding: 28px; color: var(--muted); font-size: 0.85rem; }
+  .empty-history .icon { font-size: 2rem; margin-bottom: 8px; }
+
+  /* ── HOW TO USE ── */
+  .steps { display: grid; gap: 14px; }
+  .step {
+    display: flex; gap: 16px; align-items: flex-start;
+    background: var(--input-bg); border: 1px solid var(--input-border);
+    border-radius: 12px; padding: 16px;
+  }
+  .step-num {
+    width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
+    background: linear-gradient(135deg, var(--green-dark), var(--green));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.85rem; font-weight: 800; color: #fff;
+  }
+  .step-body h3 { font-size: 0.88rem; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .step-body p { font-size: 0.78rem; color: var(--muted); line-height: 1.6; }
+
+  /* ── FAQ ── */
+  .faq-item { border-bottom: 1px solid var(--card-border); }
+  .faq-item:last-child { border-bottom: none; }
+  .faq-q {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 16px 0; cursor: pointer; gap: 12px;
+    font-size: 0.88rem; font-weight: 600; color: var(--text);
+    transition: color 0.15s;
+  }
+  .faq-q:hover { color: var(--green-light); }
+  .faq-icon { font-size: 1rem; color: var(--green); flex-shrink: 0; transition: transform 0.25s; }
+  .faq-a {
+    max-height: 0; overflow: hidden;
+    font-size: 0.82rem; color: var(--muted); line-height: 1.7;
+    transition: max-height 0.3s ease, padding 0.3s ease;
+  }
+  .faq-item.open .faq-a { max-height: 200px; padding-bottom: 16px; }
+  .faq-item.open .faq-icon { transform: rotate(45deg); }
+
+
+
+  /* ── ERROR ── */
+  .error-box {
+    background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3);
+    border-radius: 10px; padding: 12px 16px; font-size: 0.82rem;
+    color: #fca5a5; margin-top: 12px; display: none;
+  }
+
+  /* ── FOOTER ── */
+  .tp-footer { text-align: center; padding: 30px 20px 10px; color: var(--muted); font-size: 0.75rem; }
+  .tp-footer a { color: var(--green-light); text-decoration: none; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 580px) {
+    .hero h1 { font-size: 1.65rem; }
+    .card { padding: 18px; }
+    .features-grid { grid-template-columns: 1fr; }
+    .result-url-row { flex-direction: column; }
+    .hero-stats { gap: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="tp-header">
+  <div class="logo">⚡ TechPatraa</div>
+  <div class="tagline">Free Tech Tools for Everyone</div>
+</header>
+
+<!-- TOP AD -->
+<div class="ad-wrap">
+  <div class="ad-label">Advertisement</div>
+  <script type='text/javascript'>
+    atOptions = {
+      'key' : '40481fbfeb3ccbe3f4d81eba78ba36e8',
+      'format' : 'iframe',
+      'height' : 50,
+      'width' : 320,
+      'params' : {}
+    };
+  </script>
+  <script type='text/javascript' src='//www.highperformanceformat.com/40481fbfeb3ccbe3f4d81eba78ba36e8/invoke.js'></script>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">🔗 100% Free · No Signup · Instant</div>
+  <h1>Free <span>URL Shortener</span></h1>
+  <p>Shorten long, ugly URLs into clean short links in one click. Perfect for Instagram bio, WhatsApp, YouTube descriptions & more.</p>
+
+</div>
+
+<div class="container">
+
+  <!-- MAIN SHORTENER CARD -->
+  <div class="card">
+    <div class="card-title">🔗 Shorten Your URL</div>
+
+    <div class="url-input-wrap">
+      <span class="url-icon">🌐</span>
+      <input type="url" id="longUrl" placeholder="Paste your long URL here... https://example.com/very-long-link" autocomplete="off" spellcheck="false">
+      <button class="url-clear" id="clearBtn" onclick="clearInput()" title="Clear">✕</button>
+    </div>
+
+    <div class="alias-row">
+      <span class="alias-label">Custom alias (optional):</span>
+      <span class="alias-prefix">tinyurl.com/</span>
+      <input type="text" class="alias-input" id="aliasInput" placeholder="your-custom-name" maxlength="30" pattern="[a-zA-Z0-9\-]+" title="Only letters, numbers, hyphens">
+    </div>
+
+    <div class="error-box" id="errorBox">⚠️ <span id="errorMsg"></span></div>
+
+    <button class="btn-shorten" id="shortenBtn" onclick="shortenURL()">
+      <span>✂️</span> Shorten URL
+    </button>
+
+    <div class="loader-bar" id="loaderBar"><div class="loader-bar-inner"></div></div>
+
+    <!-- RESULT -->
+    <div id="resultBox">
+      <div class="result-inner">
+        <div class="result-label">✅ Your Short URL is Ready!</div>
+        <div class="result-url-row">
+          <div class="result-url" id="shortUrlDisplay"></div>
+        </div>
+        <div class="result-btns">
+          <button class="btn-sm" id="copyBtn" onclick="copyShortUrl()">📋 Copy Link</button>
+          <button class="btn-sm" onclick="openShortUrl()">↗️ Open Link</button>
+          <button class="btn-sm" onclick="toggleQR()">📱 QR Code</button>
+          <button class="btn-sm" onclick="shareUrl()">🔗 Share</button>
+          <button class="btn-sm" onclick="shortenAnother()">➕ Shorten Another</button>
+        </div>
+        <div class="original-url-preview">
+          <span>Original: </span><span id="originalPreview"></span>
+        </div>
+        <div id="qrWrap">
+          <img id="qrImg" src="" alt="QR Code" width="160" height="160">
+          <div class="qr-label">Scan to open · Right-click to save</div>
+          <button class="btn-sm" style="margin:8px auto 0;display:flex;" onclick="downloadQR()">⬇️ Download QR</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MID AD -->
+  <div class="ad-wrap" style="border-radius:14px; margin-bottom:20px;">
+    <div class="ad-label">Advertisement</div>
+    <script async src="https://cdn.effectivecpmnetwork.com/tags.min.js" data-zone="d6326e2bc11513c8d9ebfbc2f5913f5f"></script>
+  </div>
+
+  <!-- HISTORY -->
+  <div class="card">
+    <div class="card-title" style="justify-content:space-between; flex-direction:row;">
+      <span style="display:flex;align-items:center;gap:8px;"><span style="width:3px;height:14px;background:var(--green);border-radius:2px;display:inline-block;"></span> 🕐 Recent Links</span>
+      <button class="btn-sm" onclick="clearHistory()" style="font-size:0.7rem;padding:5px 10px;">🗑️ Clear All</button>
+    </div>
+    <div id="historyList"></div>
+  </div>
+
+  <!-- HOW TO USE -->
+  <div class="card">
+    <div class="card-title">📖 How to Use</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <h3>Paste Your Long URL</h3>
+          <p>Copy your long URL from any website, YouTube, blog, or social media and paste it in the input box above.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <h3>Add Custom Alias (Optional)</h3>
+          <p>Want a memorable link? Enter a custom name like "my-blog" to get tinyurl.com/my-blog instead of a random code.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <h3>Click "Shorten URL"</h3>
+          <p>Hit the green button and your short link will be generated instantly in less than a second.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <h3>Copy, Share or Scan QR</h3>
+          <p>Copy the short link, open it directly, generate a QR code for offline sharing, or use the Share button for WhatsApp, Instagram and more.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div class="card">
+    <div class="card-title">❓ Frequently Asked Questions</div>
+    <div id="faqContainer">
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFAQ(this)">
+          Is this URL shortener completely free?
+          <span class="faq-icon">+</span>
+        </div>
+        <div class="faq-a">Yes! TechPatraa's URL Shortener is 100% free to use. No account, no subscription, no hidden charges. You can shorten unlimited URLs without any cost.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFAQ(this)">
+          Do I need to create an account?
+          <span class="faq-icon">+</span>
+        </div>
+        <div class="faq-a">No signup or login is required. Just paste your URL, click the button, and get your short link instantly. It's that simple!</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFAQ(this)">
+          How long do the shortened links last?
+          <span class="faq-icon">+</span>
+        </div>
+        <div class="faq-a">The shortened links are powered by TinyURL, which is one of the oldest and most reliable URL shorteners. TinyURL links are permanent and do not expire unless the original URL stops working.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFAQ(this)">
+          Can I use a custom alias for my link?
+          <span class="faq-icon">+</span>
+        </div>
+        <div class="faq-a">Yes! You can add a custom alias (like "my-blog" or "techpatraa-tool") to make your short URL more memorable. If the alias is already taken, TinyURL will auto-generate a unique one for you.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFAQ(this)">
+          Is it safe to use shortened URLs?
+          <span class="faq-icon">+</span>
+        </div>
+        <div class="faq-a">Yes, this tool only shortens the URL you provide — it does not modify, track, or store your original link on our servers. TinyURL is a trusted service used by millions worldwide.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFAQ(this)">
+          Can I shorten YouTube, Instagram, or WhatsApp links?
+          <span class="faq-icon">+</span>
+        </div>
+        <div class="faq-a">Absolutely! You can shorten any valid URL — YouTube videos, Instagram profiles, WhatsApp chat links, Google Maps, blog posts, product pages, or any other webpage.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFAQ(this)">
+          What is the QR Code feature?
+          <span class="faq-icon">+</span>
+        </div>
+        <div class="faq-a">After shortening a URL, you can click "QR Code" to generate a scannable QR code for your short link. This is perfect for flyers, visiting cards, presentations, or offline sharing. You can also download the QR code image.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFAQ(this)">
+          Where is my history saved?
+          <span class="faq-icon">+</span>
+        </div>
+        <div class="faq-a">Your recent shortened links are saved locally in your browser's storage. This means your history is only visible to you on your device and is never sent to any server. You can clear it anytime with the "Clear All" button.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- BOTTOM AD -->
+<div class="ad-wrap" style="margin-top:10px;">
+  <div class="ad-label">Advertisement</div>
+  <script type='text/javascript'>
+    atOptions = {
+      'key' : '40481fbfeb3ccbe3f4d81eba78ba36e8',
+      'format' : 'iframe',
+      'height' : 50,
+      'width' : 320,
+      'params' : {}
+    };
+  </script>
+  <script type='text/javascript' src='//www.highperformanceformat.com/40481fbfeb3ccbe3f4d81eba78ba36e8/invoke.js'></script>
+</div>
+
+<div class="tp-footer">
+  Made with ❤️ by <a href="https://www.techpatraa.com" target="_blank">TechPatraa</a> · Free Tools for Everyone
+</div>
+
+<script>
+// ── STATE ────────────────────────────────────────────────────────────────
+let currentShortUrl = '';
+let history = JSON.parse(localStorage.getItem('tp_url_history') || '[]');
+
+// ── INIT ─────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  const input = document.getElementById('longUrl');
+  const clearBtn = document.getElementById('clearBtn');
+
+  input.addEventListener('input', () => {
+    clearBtn.style.display = input.value ? 'block' : 'none';
+    hideError();
+  });
+
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') shortenURL();
+  });
+
+  renderHistory();
+});
+
+// ── VALIDATE URL ─────────────────────────────────────────────────────────
+function isValidUrl(url) {
+  try {
+    const u = new URL(url);
+    return u.protocol === 'http:' || u.protocol === 'https:';
+  } catch { return false; }
+}
+
+// ── CLEAR INPUT ───────────────────────────────────────────────────────────
+function clearInput() {
+  document.getElementById('longUrl').value = '';
+  document.getElementById('clearBtn').style.display = 'none';
+  document.getElementById('longUrl').focus();
+  hideError();
+  document.getElementById('resultBox').style.display = 'none';
+}
+
+// ── SHOW / HIDE ERROR ────────────────────────────────────────────────────
+function showError(msg) {
+  const box = document.getElementById('errorBox');
+  document.getElementById('errorMsg').textContent = msg;
+  box.style.display = 'block';
+}
+function hideError() {
+  document.getElementById('errorBox').style.display = 'none';
+}
+
+// ── MAIN SHORTEN FUNCTION ─────────────────────────────────────────────────
+async function shortenURL() {
+  const longUrl = document.getElementById('longUrl').value.trim();
+  const alias = document.getElementById('aliasInput').value.trim();
+
+  hideError();
+
+  if (!longUrl) { showError('Please enter a URL to shorten.'); return; }
+  if (!isValidUrl(longUrl)) { showError('Please enter a valid URL starting with https:// or http://'); return; }
+
+  // UI — loading state
+  const btn = document.getElementById('shortenBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin-inline">⏳</span> Shortening...';
+  document.getElementById('loaderBar').classList.add('active');
+  document.getElementById('resultBox').style.display = 'none';
+
+  try {
+    // Build TinyURL API endpoint
+    let apiUrl = `https://tinyurl.com/api-create.php?url=${encodeURIComponent(longUrl)}`;
+    if (alias) apiUrl += `&alias=${encodeURIComponent(alias)}`;
+
+    const response = await fetch(apiUrl);
+
+    if (!response.ok) throw new Error('API error');
+
+    const shortUrl = await response.text();
+
+    if (!shortUrl || !shortUrl.startsWith('http')) {
+      throw new Error('Invalid response');
+    }
+
+    currentShortUrl = shortUrl.trim();
+    showResult(longUrl, currentShortUrl);
+    saveToHistory(longUrl, currentShortUrl);
+
+  } catch (err) {
+    showError('Could not shorten URL. Please check your internet connection and try again.');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<span>✂️</span> Shorten URL';
+    document.getElementById('loaderBar').classList.remove('active');
+  }
+}
+
+// ── SHOW RESULT ───────────────────────────────────────────────────────────
+function showResult(original, short) {
+  document.getElementById('shortUrlDisplay').innerHTML = `<a href="${short}" target="_blank" rel="noopener">${short}</a>`;
+  document.getElementById('originalPreview').textContent = original.length > 60 ? original.substring(0, 60) + '...' : original;
+  document.getElementById('resultBox').style.display = 'block';
+  document.getElementById('qrWrap').style.display = 'none';
+  document.getElementById('copyBtn').innerHTML = '📋 Copy Link';
+  document.getElementById('copyBtn').classList.remove('success');
+  document.getElementById('resultBox').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+// ── COPY ──────────────────────────────────────────────────────────────────
+function copyShortUrl() {
+  if (!currentShortUrl) return;
+  navigator.clipboard.writeText(currentShortUrl).then(() => {
+    const btn = document.getElementById('copyBtn');
+    btn.innerHTML = '✅ Copied!';
+    btn.classList.add('success');
+    setTimeout(() => { btn.innerHTML = '📋 Copy Link'; btn.classList.remove('success'); }, 2500);
+  });
+}
+
+// ── OPEN ──────────────────────────────────────────────────────────────────
+function openShortUrl() {
+  if (currentShortUrl) window.open(currentShortUrl, '_blank', 'noopener');
+}
+
+// ── QR CODE ───────────────────────────────────────────────────────────────
+function toggleQR() {
+  const wrap = document.getElementById('qrWrap');
+  if (wrap.style.display === 'block') {
+    wrap.style.display = 'none';
+    return;
+  }
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(currentShortUrl)}&bgcolor=1a2a3a&color=25c98f&margin=10`;
+  document.getElementById('qrImg').src = qrUrl;
+  wrap.style.display = 'block';
+}
+
+function downloadQR() {
+  const link = document.createElement('a');
+  link.href = document.getElementById('qrImg').src;
+  link.download = 'techpatraa-qr-code.png';
+  link.click();
+}
+
+// ── SHARE ─────────────────────────────────────────────────────────────────
+function shareUrl() {
+  if (navigator.share && currentShortUrl) {
+    navigator.share({ title: 'Check this out!', url: currentShortUrl });
+  } else {
+    copyShortUrl();
+    alert('Link copied! Paste it anywhere to share. 📋');
+  }
+}
+
+// ── SHORTEN ANOTHER ────────────────────────────────────────────────────────
+function shortenAnother() {
+  document.getElementById('longUrl').value = '';
+  document.getElementById('aliasInput').value = '';
+  document.getElementById('clearBtn').style.display = 'none';
+  document.getElementById('resultBox').style.display = 'none';
+  currentShortUrl = '';
+  document.getElementById('longUrl').focus();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── HISTORY ───────────────────────────────────────────────────────────────
+function saveToHistory(original, short) {
+  const item = {
+    original,
+    short,
+    time: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
+    date: new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })
+  };
+  history = history.filter(h => h.original !== original);
+  history.unshift(item);
+  if (history.length > 15) history.pop();
+  localStorage.setItem('tp_url_history', JSON.stringify(history));
+  renderHistory();
+}
+
+function renderHistory() {
+  const list = document.getElementById('historyList');
+  if (!history.length) {
+    list.innerHTML = '<div class="empty-history"><div class="icon">🔗</div>Your shortened links will appear here</div>';
+    return;
+  }
+  list.innerHTML = history.map((h, i) => `
+    <div class="history-item">
+      <div class="history-left">
+        <div class="history-short"><a href="${h.short}" target="_blank" rel="noopener">${h.short}</a></div>
+        <div class="history-original">${h.original}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <span class="history-time">${h.date} · ${h.time}</span>
+        <button class="btn-sm history-copy" onclick="copyFromHistory('${h.short}', this)">📋 Copy</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function copyFromHistory(url, btn) {
+  navigator.clipboard.writeText(url).then(() => {
+    const orig = btn.innerHTML;
+    btn.innerHTML = '✅ Copied!';
+    btn.classList.add('success');
+    setTimeout(() => { btn.innerHTML = orig; btn.classList.remove('success'); }, 2000);
+  });
+}
+
+function clearHistory() {
+  if (!history.length) return;
+  if (confirm('Clear all history?')) {
+    history = [];
+    localStorage.removeItem('tp_url_history');
+    renderHistory();
+  }
+}
+
+// ── FAQ TOGGLE ──────────────────────────────────────────────────────────
+function toggleFAQ(el) {
+  const item = el.closest('.faq-item');
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
+}
+</script>
+
+</body>
+</html>
